@@ -1,2 +1,18 @@
 <Project Sdk="Microsoft.Build.Traversal">
+  <Target Name="BuildPythonUnix" BeforeTargets="Build" Condition="'$(BuildOS)' != 'Windows_NT'">
+    <Message Importance="High" Text="** Noop" />
+  </Target>
+  <Target Name="BuildPythonWindows" BeforeTargets="Build" Condition="'$(BuildOS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <PythonBuildArch Condition="'$(TargetArchitecture)' == 'x64'">x64</PythonBuildArch>
+      <PythonBuildArch Condition="'$(TargetArchitecture)' == 'x86'">Win32</PythonBuildArch>
+      <PythonBuildArch Condition="'$(TargetArchitecture)' == 'arm'">ARM</PythonBuildArch>
+      <PythonBuildArch Condition="'$(TargetArchitecture)' == 'arm64'">arm64</PythonBuildArch>
+    </PropertyGroup>
+    <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
+    <Exec WorkingDirectory="$(ProjectDir)PCbuild"
+      Command="build.bat -c $(Configuration) -p $(PythonBuildArch) -t Build --no-tkinter &quot;/p:Py_OutDir=$(PythonBuildDir)&quot; &quot;/p:PlatformToolset=v142&quot;"
+      IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+  <Target Name="Build" DependsOnTargets="BuildPythonUnix;BuildPythonWindows" />
 </Project>
