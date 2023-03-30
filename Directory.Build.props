@@ -39,7 +39,7 @@
     <Configuration Condition="'$(Configuration)' == ''">$(BuildType)</Configuration>
     <Platform Condition="'$(Platform)' == ''">$(BuildArch)</Platform>
 
-    <PlatformConfigPathPart>$(BuildOS).$(TargetArchitecture).$(BuildType)</PlatformConfigPathPart>
+    <PlatformConfigPathPart>$(BuildOS).$(TargetArchitecture).$(Configuration)</PlatformConfigPathPart>
   </PropertyGroup>
 
     <!-- Common properties -->
@@ -68,5 +68,6 @@
     <BuildLLVM>$(MonoLLVMDir)\$(BuildArchitecture)\</BuildLLVM>
     <PackageLLVM>$(MonoLLVMDir)\$(TargetArchitecture)\</PackageLLVM>
     <PythonBuildDir>$(BaseIntermediateOutputPath)cpython</PythonBuildDir>
+    <PythonInstallDir>$(BinDir)cpython</PythonInstallDir>
   </PropertyGroup>
 </Project>

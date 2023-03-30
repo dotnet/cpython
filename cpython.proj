@@ -14,5 +14,30 @@
       Command="build.bat -c $(Configuration) -p $(PythonBuildArch) -t Build --no-tkinter &quot;/p:Py_OutDir=$(PythonBuildDir)&quot; &quot;/p:PlatformToolset=v142&quot;"
       IgnoreStandardErrorWarningFormat="true" />
   </Target>
+  <Target Name="LayoutPythonWindows" AfterTargets="BuildPythonWindows"  Condition="'$(BuildOS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'x64'">amd64</PythonLayoutArch>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'x86'">win32</PythonLayoutArch>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'arm'">arm32</PythonLayoutArch>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'arm64'">arm64</PythonLayoutArch>
+      <PythonDebugFlag Condition="'$(Configuration)' == 'Debug'">-d</PythonDebugFlag>
+    </PropertyGroup>
+    <Exec WorkingDirectory="C:\"
+      Command="python $(ProjectDir)PC\layout -vv -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --catalog $(PythonBuildDir)\python.cat --include-tools --include-dev --include-stable"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
+    <Exec WorkingDirectory="C:\"
+      Command="python $(ProjectDir)PC\layout -vv -s $(ProjectDir) -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --copy $(PythonInstallDir) $(PythonDebugFlag) --doc-build $(ProjectDir)doc --include-tools --include-dev --include-stable --include-cat $(PythonBuildDir)\python.cat"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
+  </Target>
+  <Target Name="WriteVersionFile" AfterTargets="LayoutPythonWindows">
+    <PropertyGroup>
+      <EmsdkVersion>python-$(VersionPrefix)-dotnet</EmsdkVersion>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PythonInstallDir)\.emsdk_version"
+      Overwrite="true"
+      Lines="$(EmsdkVersion)" />
+  </Target>
   <Target Name="Build" DependsOnTargets="BuildPythonUnix;BuildPythonWindows" />
 </Project>
