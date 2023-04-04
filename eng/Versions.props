@@ -10,5 +10,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <PythonHexVersion>0x030902F0</PythonHexVersion>
+    <PythonMajorVersion>3.9</PythonMajorVersion>
   </PropertyGroup>
 </Project>

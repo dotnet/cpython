@@ -67,7 +67,10 @@
   <PropertyGroup>
     <BuildLLVM>$(MonoLLVMDir)\$(BuildArchitecture)\</BuildLLVM>
     <PackageLLVM>$(MonoLLVMDir)\$(TargetArchitecture)\</PackageLLVM>
-    <PythonBuildDir>$(BaseIntermediateOutputPath)cpython</PythonBuildDir>
-    <PythonInstallDir>$(BinDir)cpython</PythonInstallDir>
+    <PythonBuildDir>$(BaseIntermediateOutputPath)cpython\</PythonBuildDir>
+    <PythonInstallDir>$(BinDir)cpython\</PythonInstallDir>
+    <ProvisionedOpenSSLDir>$(BaseIntermediateOutputPath)openssl-merged\</ProvisionedOpenSSLDir>
+    <HomebrewX64>$(BaseIntermediateOutputPath)\brew-x64\</HomebrewX64>
+    <HomebrewARM64>$(BaseIntermediateOutputPath)\brew-arm64\</HomebrewARM64>
   </PropertyGroup>
 </Project>
