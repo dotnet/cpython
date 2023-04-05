@@ -41,6 +41,7 @@
       Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" >
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveX64" />
     </Exec>
+    <Message Importance="High" Text="*** OpenSSLArchiveX64 = $(OpenSSLArchiveX64)" />
     <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew install $(OpenSSLArchiveX64)"
       IgnoreStandardErrorWarningFormat="true"
@@ -56,6 +57,7 @@
       Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" >
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveARM64" />
     </Exec>
+    <Message Importance="High" Text="*** OpenSSLArchiveARM64 = $(OpenSSLArchiveARM64)" />
     <Exec WorkingDirectory="$(HomebrewARM64)"
       Command="arch -x86_64 bin/brew install $(OpenSSLArchiveARM64)"
       IgnoreStandardErrorWarningFormat="true"
@@ -148,7 +150,7 @@
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(ProjectDir)PCbuild"
-      Command="build.bat -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter &quot;/p:Py_OutDir=$(PythonBuildDir)&quot; &quot;/p:PlatformToolset=v142&quot;"
+      Command="build.bat -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter &quot;/p:PlatformToolset=v142&quot; &quot;/p:Py_OutDir=$(PythonBuildDir)&quot;"
       IgnoreStandardErrorWarningFormat="true" />
   </Target>
 
