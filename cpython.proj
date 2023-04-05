@@ -180,4 +180,7 @@
   </Target>
 
   <Target Name="Build" DependsOnTargets="BuildPythonUnix;BuildPythonWindows" />
+  <Target Name="ReallyPack" BeforeTargets="Pack">
+    <MSBuild Projects="eng/nuget/packages.builds" Targets="Build" />
+  </Target>
 </Project>

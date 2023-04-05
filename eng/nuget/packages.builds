@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.Build.Traversal">
+  <ItemGroup>
+    <ProjectReference Include="Microsoft.NETCore.Runtime.Wasm.Python.Transport\Microsoft.NETCore.Runtime.Wasm.Python.Transport.builds" />
+  </ItemGroup>
+</Project>
