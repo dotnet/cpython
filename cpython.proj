@@ -150,8 +150,9 @@
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(ProjectDir)PCbuild"
-      Command="build.bat -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter &quot;/p:PlatformToolset=v142&quot; &quot;/p:Py_OutDir=$(PythonBuildDir)&quot;"
-      IgnoreStandardErrorWarningFormat="true" />
+      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="PlatformToolset=v142;Py_OutDir=$(PythonBuildDir)"/>
   </Target>
 
   <Target Name="LayoutPythonWindows" AfterTargets="BuildPythonWindows"  Condition="'$(BuildOS)' == 'Windows_NT'">
