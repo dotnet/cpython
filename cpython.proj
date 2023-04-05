@@ -39,35 +39,23 @@
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" >
-      <Output TaskParameter="ConsoleOutput" ItemName="OpenSSLArchiveX64Output" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveX64" />
     </Exec>
-    <ItemGroup>
-      <OpenSSLArchiveX64Reversed Include="@(OpenSSLArchiveX64Output->Reverse())" />
-    </ItemGroup>
-    <PropertyGroup>
-      <OpenSSLArchiveX64>%(OpenSSLArchiveX64Reversed.Identity)</OpenSSLArchiveX64>
-    </PropertyGroup>
     <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew install $(OpenSSLArchiveX64)"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" />
-    <Exec WorkingDirectory="$(HomebrewARM64)"
+    <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew fetch --force --bottle-tag=arm64_big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" />
-    <Exec WorkingDirectory="$(HomebrewARM64)"
+    <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew --cache --bottle-tag=arm64_big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" >
-      <Output TaskParameter="ConsoleOutput" ItemName="OpenSSLArchiveARM64Output" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveARM64" />
     </Exec>
-    <ItemGroup>
-      <OpenSSLArchiveARM64Reversed Include="@(OpenSSLArchiveARM64Output->Reverse())" />
-    </ItemGroup>
-    <PropertyGroup>
-      <OpenSSLArchiveARM64>%(OpenSSLArchiveARM64Reversed.Identity)</OpenSSLArchiveARM64>
-    </PropertyGroup>
     <Exec WorkingDirectory="$(HomebrewARM64)"
       Command="arch -x86_64 bin/brew install $(OpenSSLArchiveARM64)"
       IgnoreStandardErrorWarningFormat="true"
