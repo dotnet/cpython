@@ -118,6 +118,9 @@
       DestinationFiles="@(PythonFiles->'$(PythonInstallDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
     <RemoveDir Directories="$(PythonInstallDir)\usr" />
     <Exec WorkingDirectory="$(PythonInstallDir)"
+      Command="bin/python$(PythonMajorVersion) bin/pip$(PythonMajorVersion) install certifi==2020.12.5 chardet==4.0.0 idna==2.10 requests==2.25.1 urllib3==1.26.3"
+      IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(PythonInstallDir)"
       Command="lipo -thin $(LipoArchitecture) bin/python3 -output bin/python3.$(TargetArchitecture)"
       IgnoreStandardErrorWarningFormat="true"
       Condition="'$(BuildOS)' == 'OSX'" />
@@ -128,9 +131,6 @@
     <Move Condition="'$(BuildOS)' == 'OSX'" SourceFiles="$(PythonInstallDir)bin\python$(PythonMajorVersion).$(TargetArchitecture)" DestinationFiles="$(PythonInstallDir)bin\python$(PythonMajorVersion)" />
     <Move Condition="'$(BuildOS)' == 'OSX'" SourceFiles="$(PythonInstallDir)bin\python3.$(TargetArchitecture)" DestinationFiles="$(PythonInstallDir)bin\python3" />
     <Delete Files="$(PythonInstallDir)lib\libpython$(PythonMajorVersion).a" />
-    <Exec WorkingDirectory="$(PythonInstallDir)"
-      Command="bin/python$(PythonMajorVersion) bin/pip$(PythonMajorVersion) install certifi==2020.12.5 chardet==4.0.0 idna==2.10 requests==2.25.1 urllib3==1.26.3"
-      IgnoreStandardErrorWarningFormat="true" />
     <ItemGroup>
       <PyCaches Include="$(PythonInstallDir)**\*.pyc" />
       <PyCacheDirs Include="@(PyCaches->'%(RelativeDir)')" />
