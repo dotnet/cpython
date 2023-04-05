@@ -14,9 +14,11 @@
       Retries="10"
       SourceUrl="https://github.com/Homebrew/brew/tarball/master" />
     <MakeDir Directories="$(HomebrewX64)" />
+    <Message Importance="High" Text="*** Executing: tar xf brew.tar.gz --strip 1 -C $(HomebrewX64)" />
     <Exec WorkingDirectory="$(BaseIntermediateOutputPath)"
       Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewX64)"
       IgnoreStandardErrorWarningFormat="true" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew doctor" />
     <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew doctor"
       IgnoreStandardErrorWarningFormat="true"
@@ -30,10 +32,12 @@
     <Copy SourceFiles="@(BrewFiles)"
       DestinationFiles="@(BrewFiles->'$(HomebrewARM64)\%(RecursiveDir)%(Filename)%(Extension)')"
       Condition="!Exists('$(HomebrewARM64)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew fetch --force --bottle-tag=big_sur openssl@1.1" />
     <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew fetch --force --bottle-tag=big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew --cache --bottle-tag=big_sur openssl@1.1" />
     <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew --cache --bottle-tag=big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
@@ -41,15 +45,17 @@
       Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" >
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveX64" />
     </Exec>
-    <Message Importance="High" Text="*** OpenSSLArchiveX64 = $(OpenSSLArchiveX64)" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew install $(OpenSSLArchiveX64)" />
     <Exec WorkingDirectory="$(HomebrewX64)"
       Command="arch -x86_64 bin/brew install $(OpenSSLArchiveX64)"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew fetch --force --bottle-tag=arm64_big_sur openssl@1.1" />
     <Exec WorkingDirectory="$(HomebrewARM64)"
       Command="arch -x86_64 bin/brew fetch --force --bottle-tag=arm64_big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew --cache --bottle-tag=arm64_big_sur openssl@1.1" />
     <Exec WorkingDirectory="$(HomebrewARM64)"
       Command="arch -x86_64 bin/brew --cache --bottle-tag=arm64_big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
@@ -57,7 +63,7 @@
       Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" >
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveARM64" />
     </Exec>
-    <Message Importance="High" Text="*** OpenSSLArchiveARM64 = $(OpenSSLArchiveARM64)" />
+    <Message Importance="High" Text="*** Executing: arch -x86_64 bin/brew install $(OpenSSLArchiveARM64)" />
     <Exec WorkingDirectory="$(HomebrewARM64)"
       Command="arch -x86_64 bin/brew install $(OpenSSLArchiveARM64)"
       IgnoreStandardErrorWarningFormat="true"
