@@ -5,70 +5,61 @@
          if pip is expected to work). Unfortunately, we're expected to take OpenSSL from
          Homebrew, and Homebrew does not in any way shape or form support Universal
          binaries, or alt prefix installation. In order to build a Universal Python, we
-         need a Universal libssl - so we create one ourselves, by parallel installing
-         two copies of Homebrew into a prefix in the artifacts folder, overriding the
-         architecture detection to force installation of the arm64 version regardless of
-         the installed CPU, then combine the two together with lipo. -->
+         need a Universal libssl - so we create one ourselves, by downloading two copies
+         into the Homebrew package cache, exctract the tarballs ourselves to avoid the need
+         for two copies of Homebrew, then combine the two together with lipo. -->
     <DownloadFile DestinationFileName="brew.tar.gz"
       DestinationFolder="$(BaseIntermediateOutputPath)"
       Retries="10"
       SourceUrl="https://github.com/Homebrew/brew/tarball/master" />
-    <MakeDir Directories="$(HomebrewX64)" />
+    <MakeDir Directories="$(HomebrewDir);$(OpenSSLX64Dir);$(OpenSSLARM64Dir)" />
     <Exec WorkingDirectory="$(BaseIntermediateOutputPath)"
-      Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewX64)"
+      Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewDir)"
       IgnoreStandardErrorWarningFormat="true" />
-    <Exec WorkingDirectory="$(HomebrewX64)"
-      Command="arch -x86_64 bin/brew doctor"
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew doctor"
       IgnoreStandardErrorWarningFormat="true"
       IgnoreExitCode="true"
-      Condition="!Exists('$(HomebrewX64)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
-    <!-- Work around unhelpful Brew mistake -->
-    <Delete Files="$(HomebrewX64)\Library\Homebrew\os\mac\pkgconfig\fuse\fuse.pc;$(HomebrewX64)\Library\Homebrew\os\mac\pkgconfig\fuse\osxfuse.pc" />
-    <ItemGroup>
-      <BrewFiles Include="$(HomebrewX64)\**" />
-    </ItemGroup>
-    <Copy SourceFiles="@(BrewFiles)"
-      DestinationFiles="@(BrewFiles->'$(HomebrewARM64)\%(RecursiveDir)%(Filename)%(Extension)')"
-      Condition="!Exists('$(HomebrewARM64)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
-    <Exec WorkingDirectory="$(HomebrewX64)"
-      Command="arch -x86_64 bin/brew fetch --force --bottle-tag=big_sur openssl@1.1"
+      Condition="!Exists('$(HomebrewDir)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew fetch --force --bottle-tag=big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
-      Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" />
-    <Exec WorkingDirectory="$(HomebrewX64)"
-      Command="arch -x86_64 bin/brew --cache --bottle-tag=big_sur openssl@1.1"
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew --cache --bottle-tag=big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
-      Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" >
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" >
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveX64" />
     </Exec>
-    <Exec WorkingDirectory="$(HomebrewX64)"
-      Command="arch -x86_64 bin/brew install $(OpenSSLArchiveX64)"
+    <Exec WorkingDirectory="$(OpenSSLX64Dir)"
+      Command="tar xf $(OpenSSLArchiveX64) --strip-components=2"
       IgnoreStandardErrorWarningFormat="true"
-      Condition="!Exists('$(HomebrewX64)/opt/openssl@1.1')" />
-    <Exec WorkingDirectory="$(HomebrewX64)"
-      Command="arch -x86_64 bin/brew fetch --force --bottle-tag=arm64_big_sur openssl@1.1"
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="brew fetch --force --bottle-tag=arm64_big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
-      Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" />
-    <Exec WorkingDirectory="$(HomebrewX64)"
-      Command="arch -x86_64 bin/brew --cache --bottle-tag=arm64_big_sur openssl@1.1"
+      Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew --cache --bottle-tag=arm64_big_sur openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
-      Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" >
+      Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" >
       <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveARM64" />
     </Exec>
-    <Exec WorkingDirectory="$(HomebrewARM64)"
-      Command="arch -x86_64 bin/brew install $(OpenSSLArchiveARM64)"
+    <Exec WorkingDirectory="$(OpenSSLARM64Dir)"
+      Command="tar xf $(OpenSSLArchiveARM64) --strip-components=2"
       IgnoreStandardErrorWarningFormat="true"
-      Condition="!Exists('$(HomebrewARM64)/opt/openssl@1.1')" />
+      Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" />
     <MakeDir Directories="$(ProvisionedOpenSSLDir)\lib;$(ProvisionedOpenSSLDir)\include" Condition="!Exists('$(ProvisionedOpenSSLDir)\lib')" />
-    <Exec Command="lipo -create $(HomebrewX64)/opt/openssl@1.1/lib/libcrypto.a $(HomebrewARM64)/opt/openssl@1.1/lib/libcrypto.a -output $(ProvisionedOpenSSLDir)/lib/libcrypto.a"
+    <Exec Command="lipo -create $(OpenSSLX64Dir)/lib/libcrypto.a $(OpenSSLARM64Dir)/lib/libcrypto.a -output $(ProvisionedOpenSSLDir)/lib/libcrypto.a"
       IgnoreStandardErrorWarningFormat="true"
-      Condition="!Exists('$(ProvisionedOpenSSLDir)\lib\libssl.a')" />
-    <Exec Command="lipo -create $(HomebrewX64)/opt/openssl@1.1/lib/libssl.a $(HomebrewARM64)/opt/openssl@1.1/lib/libssl.a -output $(ProvisionedOpenSSLDir)/lib/libssl.a"
+      Condition="!Exists('$(ProvisionedOpenSSLDir)\lib\libcrypto.a')" />
+    <Exec Command="lipo -create $(OpenSSLX64Dir)/lib/libssl.a $(OpenSSLARM64Dir)/lib/libssl.a -output $(ProvisionedOpenSSLDir)/lib/libssl.a"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(ProvisionedOpenSSLDir)\lib\libssl.a')" />
     <ItemGroup>
-      <OpenSSLIncludes Include="$(HomebrewARM64)\opt\openssl@1.1\include\**" />
+      <OpenSSLIncludes Include="$(OpenSSLARM64Dir)\include\**" />
     </ItemGroup>
     <Copy SourceFiles="@(OpenSSLIncludes)"
       DestinationFiles="@(OpenSSLIncludes->'$(ProvisionedOpenSSLDir)\include\%(RecursiveDir)%(Filename)%(Extension)')"

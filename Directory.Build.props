@@ -70,7 +70,8 @@
     <PythonBuildDir>$(BaseIntermediateOutputPath)cpython\</PythonBuildDir>
     <PythonInstallDir>$(BinDir)cpython\</PythonInstallDir>
     <ProvisionedOpenSSLDir>$(BaseIntermediateOutputPath)openssl-merged\</ProvisionedOpenSSLDir>
-    <HomebrewX64>$(BaseIntermediateOutputPath)\brew-x64\</HomebrewX64>
-    <HomebrewARM64>$(BaseIntermediateOutputPath)\brew-arm64\</HomebrewARM64>
+    <HomebrewDir>$(BaseIntermediateOutputPath)\homebrew-git\</HomebrewDir>
+    <OpenSSLX64Dir>$(BaseIntermediateOutputPath)\openssl-x64\</OpenSSLX64Dir>
+    <OpenSSLARM64Dir>$(BaseIntermediateOutputPath)\openssl-x64\</OpenSSLARM64Dir>
   </PropertyGroup>
 </Project>
