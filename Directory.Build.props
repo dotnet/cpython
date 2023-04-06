@@ -72,6 +72,6 @@
     <ProvisionedOpenSSLDir>$(BaseIntermediateOutputPath)openssl-merged\</ProvisionedOpenSSLDir>
     <HomebrewDir>$(BaseIntermediateOutputPath)\homebrew-git\</HomebrewDir>
     <OpenSSLX64Dir>$(BaseIntermediateOutputPath)\openssl-x64\</OpenSSLX64Dir>
-    <OpenSSLARM64Dir>$(BaseIntermediateOutputPath)\openssl-x64\</OpenSSLARM64Dir>
+    <OpenSSLARM64Dir>$(BaseIntermediateOutputPath)\openssl-arm64\</OpenSSLARM64Dir>
   </PropertyGroup>
 </Project>
