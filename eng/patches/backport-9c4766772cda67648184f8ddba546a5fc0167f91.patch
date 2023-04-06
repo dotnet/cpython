@@ -1,0 +1,69 @@
+From 9c4766772cda67648184f8ddba546a5fc0167f91 Mon Sep 17 00:00:00 2001
+From: David Bohman <debohman@gmail.com>
+Date: Tue, 12 Oct 2021 17:10:26 -0700
+Subject: [PATCH] bpo-45405: Prevent ``internal configure error`` when running
+ ``configure``  with recent versions of non-Apple clang. (#28845)
+
+Change the configure logic to function properly on macOS when the compiler
+outputs a platform triplet for option --print-multiarch.
+
+Co-authored-by: Ned Deily <nad@python.org>
+---
+ .../next/Build/2021-10-11-16-27-38.bpo-45405.iSfdW5.rst   | 2 ++
+ configure                                                 | 8 +++++---
+ configure.ac                                              | 8 +++++---
+ 3 files changed, 12 insertions(+), 6 deletions(-)
+ create mode 100644 Misc/NEWS.d/next/Build/2021-10-11-16-27-38.bpo-45405.iSfdW5.rst
+
+diff --git a/configure b/configure
+index 70f28b0c7064..b2d1a64206cd 100755
+--- a/configure
++++ b/configure
+@@ -5227,9 +5227,6 @@ $as_echo "$as_me:
+ fi
+ 
+ 
+-MULTIARCH=$($CC --print-multiarch 2>/dev/null)
+-
+-
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for the platform triplet based on compiler characteristics" >&5
+ $as_echo_n "checking for the platform triplet based on compiler characteristics... " >&6; }
+ cat >> conftest.c <<EOF
+@@ -5388,6 +5385,11 @@ $as_echo "none" >&6; }
+ fi
+ rm -f conftest.c conftest.out
+ 
++if test x$PLATFORM_TRIPLET != xdarwin; then
++  MULTIARCH=$($CC --print-multiarch 2>/dev/null)
++fi
++
++
+ if test x$PLATFORM_TRIPLET != x && test x$MULTIARCH != x; then
+   if test x$PLATFORM_TRIPLET != x$MULTIARCH; then
+     as_fn_error $? "internal configure error for the platform triplet, please file a bug report" "$LINENO" 5
+diff --git a/configure.ac b/configure.ac
+index afdc68363cea..a6c6d1c49596 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -717,9 +717,6 @@ then
+ fi
+ 
+ 
+-MULTIARCH=$($CC --print-multiarch 2>/dev/null)
+-AC_SUBST(MULTIARCH)
+-
+ AC_MSG_CHECKING([for the platform triplet based on compiler characteristics])
+ cat >> conftest.c <<EOF
+ #undef bfin
+@@ -875,6 +872,11 @@ else
+ fi
+ rm -f conftest.c conftest.out
+ 
++if test x$PLATFORM_TRIPLET != xdarwin; then
++  MULTIARCH=$($CC --print-multiarch 2>/dev/null)
++fi
++AC_SUBST(MULTIARCH)
++
+ if test x$PLATFORM_TRIPLET != x && test x$MULTIARCH != x; then
+   if test x$PLATFORM_TRIPLET != x$MULTIARCH; then
+     AC_MSG_ERROR([internal configure error for the platform triplet, please file a bug report])
