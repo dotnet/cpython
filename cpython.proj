@@ -82,7 +82,7 @@
          system's built-in support for universal binaries to build for all target architectures
          at once, then split them out again later -->
     <PropertyGroup Condition="'$(BuildOS)' == 'OSX'">
-      <PythonConfigureFlags>--enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir)</PythonConfigureFlags>
+      <PythonConfigureFlags>--enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir) MACOSX_DEPLOYMENT_TARGET=11.0</PythonConfigureFlags>
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(PythonBuildDir)"
