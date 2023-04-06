@@ -11,7 +11,7 @@
     <DownloadFile DestinationFileName="brew.tar.gz"
       DestinationFolder="$(BaseIntermediateOutputPath)"
       Retries="10"
-      SourceUrl="https://github.com/Homebrew/brew/tarball/master" />
+      SourceUrl="https://github.com/Homebrew/brew/tarball/4.0.11" />
     <MakeDir Directories="$(HomebrewDir);$(OpenSSLX64Dir);$(OpenSSLARM64Dir)" />
     <Exec WorkingDirectory="$(BaseIntermediateOutputPath)"
       Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewDir)"
@@ -164,11 +164,11 @@
 
   <Target Name="WriteVersionFile" AfterTargets="LayoutPythonWindows">
     <PropertyGroup>
-      <EmsdkVersion>python-$(VersionPrefix)-dotnet</EmsdkVersion>
+      <PythonEmsdkVersion>python-$(VersionPrefix)-dotnet</PythonEmsdkVersion>
     </PropertyGroup>
     <WriteLinesToFile File="$(PythonInstallDir)\.emsdk_version"
       Overwrite="true"
-      Lines="$(EmsdkVersion)" />
+      Lines="$(PythonEmsdkVersion)" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="BuildPythonUnix;BuildPythonWindows" />

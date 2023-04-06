@@ -3,11 +3,13 @@ trigger:
   branches:
     include:
     - dotnet/main
+    - dotnet/release/*
 
 pr:
   branches:
     include:
     - dotnet/main
+    - dotnet/release/*
 
 variables:
 - template: /eng/common-variables.yml

@@ -65,8 +65,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BuildLLVM>$(MonoLLVMDir)\$(BuildArchitecture)\</BuildLLVM>
-    <PackageLLVM>$(MonoLLVMDir)\$(TargetArchitecture)\</PackageLLVM>
     <PythonBuildDir>$(BaseIntermediateOutputPath)cpython\</PythonBuildDir>
     <PythonInstallDir>$(BinDir)cpython\</PythonInstallDir>
     <ProvisionedOpenSSLDir>$(BaseIntermediateOutputPath)openssl-merged\</ProvisionedOpenSSLDir>
