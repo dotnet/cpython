@@ -162,7 +162,7 @@
       EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
   </Target>
 
-  <Target Name="WriteVersionFile" AfterTargets="LayoutPythonWindows">
+  <Target Name="WriteVersionFile" AfterTargets="LayoutPythonWindows;LayoutPythonUnix">
     <PropertyGroup>
       <PythonEmsdkVersion>python-$(VersionPrefix)-dotnet</PythonEmsdkVersion>
     </PropertyGroup>
