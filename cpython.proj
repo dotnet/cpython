@@ -128,6 +128,22 @@
       <PyCacheDirsDeduplicated Include="@(PyCacheDirs->Distinct())" />
     </ItemGroup>
     <RemoveDir Directories="$(PythonInstallDir)include;$(PythonInstallDir)lib\python$(PythonMajorVersion)\test\;@(PyCacheDirsDeduplicated)" />
+    <ItemGroup>
+      <PythonToStrip Include="$(PythonInstallDir)\bin\python3" />
+      <PythonToStrip Include="$(PythonInstallDir)\bin\python$(PythonMajorVersion)" />
+    </ItemGroup>
+    <Message Importance="High" Text="** Running dsymutil -flat %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="dsymutil -flat %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'OSX'" />
+    <Message Importance="High" Text="** Running strip -no_code_signature_warning -S %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="strip -no_code_signature_warning -S %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'OSX'" />
+    <Message Importance="High" Text="** Running codesign -f -s - %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="codesign -f -s - %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'OSX'" />
   </Target>
 
   <Target Name="BuildPythonWindows" BeforeTargets="Build" Condition="'$(BuildOS)' == 'Windows_NT'">
