@@ -153,11 +153,11 @@
       <PythonDebugFlag Condition="'$(Configuration)' == 'Debug'">-d</PythonDebugFlag>
     </PropertyGroup>
     <Exec WorkingDirectory="$([System.IO.Path]::GetPathRoot($(MSBuildProjectFullPath)))"
-      Command="python $(ProjectDir)PC\layout -vv -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --catalog $(PythonBuildDir)\python.cat --include-tools --include-dev --include-stable"
+      Command="python $(ProjectDir)PC\layout -vv -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --catalog $(PythonBuildDir)\python.cat --include-tools --include-dev --include-stable --include-symbols"
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
     <Exec WorkingDirectory="$([System.IO.Path]::GetPathRoot($(MSBuildProjectFullPath)))"
-      Command="python $(ProjectDir)PC\layout -vv -s $(ProjectDir) -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --copy $(PythonInstallDir) $(PythonDebugFlag) --doc-build $(ProjectDir)doc --include-tools --include-dev --include-stable --include-cat $(PythonBuildDir)\python.cat"
+      Command="python $(ProjectDir)PC\layout -vv -s $(ProjectDir) -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --copy $(PythonInstallDir) $(PythonDebugFlag) --doc-build $(ProjectDir)doc --include-tools --include-dev --include-stable --include-cat $(PythonBuildDir)\python.cat --include-symbols"
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
   </Target>
