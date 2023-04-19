@@ -128,3 +128,4 @@ Tools/ssl/win32
 # dotnet & our build system
 /artifacts
 /.dotnet
+/.packages
