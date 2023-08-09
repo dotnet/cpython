@@ -173,7 +173,7 @@
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
     <Exec WorkingDirectory="$(PythonBuildDir)"
-      Command="makecat python.cdf"
+      Command="CALL $(ProjectDir)PCbuild\env.bat &amp;&amp; makecat python.cdf"
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
     <Delete Files="$(PythonBuildDir)\python.cdf" />
