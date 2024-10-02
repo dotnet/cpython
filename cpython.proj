@@ -22,15 +22,15 @@
       IgnoreExitCode="true"
       Condition="!Exists('$(HomebrewDir)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew fetch --force --os big_sur --arch all openssl@1.1"
+      Command="bin/brew fetch --force --os monterey --arch all openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew fetch --force --os big_sur --arch all libb2"
+      Command="bin/brew fetch --force --os monterey --arch all libb2"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=big_sur openssl@1.1"
+      Command="bin/brew --cache --bottle-tag=monterey openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" >
@@ -41,7 +41,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=arm64_big_sur openssl@1.1"
+      Command="bin/brew --cache --bottle-tag=arm64_monterey openssl@1.1"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" >
@@ -52,7 +52,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=big_sur libb2"
+      Command="bin/brew --cache --bottle-tag=monterey libb2"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(Libb2X64Dir)\lib')" >
@@ -63,7 +63,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(Libb2X64Dir)\lib')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=arm64_big_sur libb2"
+      Command="bin/brew --cache --bottle-tag=arm64_monterey libb2"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(Libb2ARM64Dir)\lib')" >

@@ -50,7 +50,7 @@ extends:
             timeoutInMinutes: 120
             pool:
               name: Azure Pipelines
-              image: macos-12
+              image: macos-12 # when bumping this also change the brew tags in cpython.proj
               os: macOS
             steps:
             - script: |
@@ -81,7 +81,7 @@ extends:
             timeoutInMinutes: 120
             pool:
               name: Azure Pipelines
-              image: macos-12
+              image: macos-12 # when bumping this also change the brew tags in cpython.proj
               os: macOS
             steps:
             - script: |
