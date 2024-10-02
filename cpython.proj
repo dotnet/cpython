@@ -11,7 +11,7 @@
     <DownloadFile DestinationFileName="brew.tar.gz"
       DestinationFolder="$(BaseIntermediateOutputPath)"
       Retries="10"
-      SourceUrl="https://github.com/Homebrew/brew/tarball/4.1.5" />
+      SourceUrl="https://github.com/Homebrew/brew/tarball/4.4.0" />
     <MakeDir Directories="$(HomebrewDir);$(OpenSSLX64Dir);$(OpenSSLARM64Dir);$(Libb2X64Dir);$(Libb2ARM64Dir)" />
     <Exec WorkingDirectory="$(BaseIntermediateOutputPath)"
       Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewDir)"
