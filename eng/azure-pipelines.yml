@@ -29,6 +29,8 @@ extends:
         exclusionsFile: $(Build.SourcesDirectory)\.config\PoliCheckExclusions.xml
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
+      codeql:
+        runSourceLanguagesInSourceAnalysis: true
       sourceAnalysisPool:
         name: $(DncEngInternalBuildPool)
         image: 1es-windows-2022
