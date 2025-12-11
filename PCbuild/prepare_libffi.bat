@@ -204,7 +204,7 @@ if NOT DEFINED CYG_CACHE (set CYG_CACHE=C:/cygwin/var/cache/setup)
 if NOT DEFINED CYG_MIRROR (set CYG_MIRROR=http://mirrors.kernel.org/sourceware/cygwin/)
 
 powershell -c "md $env:CYG_ROOT -ErrorAction SilentlyContinue"
-powershell -c "$setup = $env:CYG_ROOT+'/setup.exe'; if (!(Test-Path $setup)){invoke-webrequest https://cygwin.com/setup-x86.exe -outfile $setup}
+powershell -c "$setup = $env:CYG_ROOT+'/setup.exe'; if (!(Test-Path $setup)){invoke-webrequest https://cygwin.com/setup-x86.exe -UseBasicParsing -outfile $setup}
 %CYG_ROOT%/setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P make -P autoconf -P automake -P libtool -P dejagnu
 
 endlocal
