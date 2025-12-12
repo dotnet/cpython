@@ -200,7 +200,7 @@
     <Exec WorkingDirectory="$(ProjectDir)PCbuild"
       Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter"
       IgnoreStandardErrorWarningFormat="true"
-      EnvironmentVariables="Py_OutDir=$(PythonBuildDir)"/>
+      EnvironmentVariables="Py_OutDir=$(PythonBuildDir)"/>
   </Target>
 
   <Target Name="LayoutPythonWindows" AfterTargets="BuildPythonWindows"  Condition="'$(BuildOS)' == 'Windows_NT'">
