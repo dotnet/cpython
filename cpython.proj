@@ -63,7 +63,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(Libb2X64Dir)\lib')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=sonoma libb2"
+      Command="bin/brew --cache --bottle-tag=arm64_sonoma libb2"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(Libb2ARM64Dir)\lib')" >
@@ -240,3 +240,4 @@
     <MSBuild Projects="eng/nuget/packages.builds" Targets="Build" />
   </Target>
 </Project>
+
