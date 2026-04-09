@@ -23,7 +23,6 @@ stages:
     parameters:
       enablePublishBuildArtifacts: true
       enablePublishBuildAssets: true
-      enablePublishUsingPipelines: true
       jobs:
 
       ############ MACOS BUILD ############
