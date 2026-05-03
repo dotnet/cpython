@@ -1,0 +1,250 @@
+<Project Sdk="Microsoft.Build.Traversal">
+
+  <Target Name="ProvisionUniversalDependencies" BeforeTargets="BuildPythonUnix" Condition="'$(ProvisionUniversalDependencies)' == 'true' and !Exists('$(ProvisionedOpenSSLDir)\include\openssl\ssl.h')">
+    <!-- Python needs to build against a static OpenSSL, in order for https to work (e.g.
+         if pip is expected to work). Unfortunately, we're expected to take OpenSSL from
+         Homebrew, and Homebrew does not in any way shape or form support Universal
+         binaries, or alt prefix installation. In order to build a Universal Python, we
+         need a Universal libssl - so we create one ourselves, by downloading two copies
+         into the Homebrew package cache, exctract the tarballs ourselves to avoid the need
+         for two copies of Homebrew, then combine the two together with lipo. -->
+    <DownloadFile DestinationFileName="brew.tar.gz"
+      DestinationFolder="$(BaseIntermediateOutputPath)"
+      Retries="10"
+      SourceUrl="https://github.com/Homebrew/brew/tarball/4.4.0" />
+    <MakeDir Directories="$(HomebrewDir);$(OpenSSLX64Dir);$(OpenSSLARM64Dir);$(Libb2X64Dir);$(Libb2ARM64Dir)" />
+    <Exec WorkingDirectory="$(BaseIntermediateOutputPath)"
+      Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewDir)"
+      IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew doctor"
+      IgnoreStandardErrorWarningFormat="true"
+      IgnoreExitCode="true"
+      Condition="!Exists('$(HomebrewDir)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew fetch --force --os sonoma --arch all openssl@3.0"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew fetch --force --os sonoma --arch all libb2"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew --cache --bottle-tag=sonoma openssl@3.0"
+      IgnoreStandardErrorWarningFormat="true"
+      ConsoleToMsBuild="true"
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" >
+      <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveX64" />
+    </Exec>
+    <Exec WorkingDirectory="$(OpenSSLX64Dir)"
+      Command="tar xf $(OpenSSLArchiveX64) --strip-components=2"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew --cache --bottle-tag=arm64_sonoma openssl@3.0"
+      IgnoreStandardErrorWarningFormat="true"
+      ConsoleToMsBuild="true"
+      Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" >
+      <Output TaskParameter="ConsoleOutput" PropertyName="OpenSSLArchiveARM64" />
+    </Exec>
+    <Exec WorkingDirectory="$(OpenSSLARM64Dir)"
+      Command="tar xf $(OpenSSLArchiveARM64) --strip-components=2"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew --cache --bottle-tag=sonoma libb2"
+      IgnoreStandardErrorWarningFormat="true"
+      ConsoleToMsBuild="true"
+      Condition="!Exists('$(Libb2X64Dir)\lib')" >
+      <Output TaskParameter="ConsoleOutput" PropertyName="Libb2ArchiveX64" />
+    </Exec>
+    <Exec WorkingDirectory="$(Libb2X64Dir)"
+      Command="tar xf $(Libb2ArchiveX64) --strip-components=2"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(Libb2X64Dir)\lib')" />
+    <Exec WorkingDirectory="$(HomebrewDir)"
+      Command="bin/brew --cache --bottle-tag=arm64_sonoma libb2"
+      IgnoreStandardErrorWarningFormat="true"
+      ConsoleToMsBuild="true"
+      Condition="!Exists('$(Libb2ARM64Dir)\lib')" >
+      <Output TaskParameter="ConsoleOutput" PropertyName="Libb2ArchiveARM64" />
+    </Exec>
+    <Exec WorkingDirectory="$(Libb2ARM64Dir)"
+      Command="tar xf $(Libb2ArchiveARM64) --strip-components=2"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(Libb2ARM64Dir)\lib')" />
+    <MakeDir Directories="$(ProvisionedOpenSSLDir)\lib;$(ProvisionedOpenSSLDir)\include" Condition="!Exists('$(ProvisionedOpenSSLDir)\lib')" />
+    <MakeDir Directories="$(ProvisionedLibb2Dir)\lib" Condition="!Exists('$(ProvisionedLibb2Dir)\lib')" />
+    <Exec Command="lipo -create $(OpenSSLX64Dir)/lib/libcrypto.a $(OpenSSLARM64Dir)/lib/libcrypto.a -output $(ProvisionedOpenSSLDir)/lib/libcrypto.a"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(ProvisionedOpenSSLDir)\lib\libcrypto.a')" />
+    <Exec Command="lipo -create $(OpenSSLX64Dir)/lib/libssl.a $(OpenSSLARM64Dir)/lib/libssl.a -output $(ProvisionedOpenSSLDir)/lib/libssl.a"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(ProvisionedOpenSSLDir)\lib\libssl.a')" />
+    <Exec Command="lipo -create $(Libb2X64Dir)/lib/libb2.a $(Libb2ARM64Dir)/lib/libb2.a -output $(ProvisionedLibb2Dir)/lib/libb2.a"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="!Exists('$(ProvisionedLibb2Dir)\lib\libb2.a')" />
+    <ItemGroup>
+      <OpenSSLIncludes Include="$(OpenSSLARM64Dir)\include\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OpenSSLIncludes)"
+      DestinationFiles="@(OpenSSLIncludes->'$(ProvisionedOpenSSLDir)\include\%(RecursiveDir)%(Filename)%(Extension)')"
+      Condition="!Exists('$(ProvisionedOpenSSLDir)\include\openssl\ssl.h')" />
+  </Target>
+
+  <Target Name="BuildPythonUnix" BeforeTargets="Build" Condition="'$(BuildOS)' != 'Windows_NT'">
+    <PropertyGroup>
+      <OpenSSLDir Condition="'$(ProvisionUniversalDependencies)' == 'true'">$(ProvisionedOpenSSLDir)</OpenSSLDir>
+      <Libb2Dir Condition="'$(ProvisionUniversalDependencies)' == 'true'">$(ProvisionedLibb2Dir)</Libb2Dir>
+    </PropertyGroup>
+    <Error Text="OpenSSLDir must be specified, pointing to a universal build of OpenSSL" Condition="'$(BuildOS)' == 'OSX' and !Exists('$(OpenSSLDir)\lib\libssl.a')" />
+    <Error Text="Libb2Dir must be specified, pointing to a universal build of libb2" Condition="'$(BuildOS)' == 'OSX' and !Exists('$(Libb2Dir)\lib\libb2.a')" />
+    <Message Text="Checking for libssl architectures" Importance="High" Condition="'$(BuildOS)' == 'OSX'" />
+    <Exec Command="lipo -archs $(OpenSSLDir)/lib/libssl.a" ConsoleToMsBuild="true" Condition="'$(BuildOS)' == 'OSX'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="LibSSLArchs" />
+    </Exec>
+    <Error Text="OpenSSL must be a universal binary, detected architectures: $(LibSSLArchs)" Condition="'$(BuildOS)' == 'OSX' and $(LibSSLArchs.Split(' ').Length) &lt; 2" />
+    <Message Text="Checking for libb2 architectures" Importance="High" Condition="'$(BuildOS)' == 'OSX'" />
+    <Exec Command="lipo -archs $(Libb2Dir)/lib/libb2.a" ConsoleToMsBuild="true" Condition="'$(BuildOS)' == 'OSX'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="Libb2Archs" />
+    </Exec>
+    <Error Text="libb2 must be a universal binary, detected architectures: $(Libb2Archs)" Condition="'$(BuildOS)' == 'OSX' and $(Libb2Archs.Split(' ').Length) &lt; 2" />
+    <!-- Python build system doesn't really support cross-compilation on Mac - but it does
+         support building universal binaries. So we cannot use the -build/-host flags to
+         produce an arm64 binary on our x64 Mac infrastructure - instead we use the build
+         system's built-in support for universal binaries to build for all target architectures
+         at once, then split them out again later -->
+    <PropertyGroup Condition="'$(BuildOS)' == 'OSX'">
+      <PythonConfigureFlags>--enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir) LIBB2_LIBS="-L$(Libb2Dir)/lib -lb2" MACOSX_DEPLOYMENT_TARGET=11.0</PythonConfigureFlags>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
+      <PythonConfigureFlags>--disable-test-modules</PythonConfigureFlags>
+    </PropertyGroup>
+    <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
+    <Exec WorkingDirectory="$(PythonBuildDir)"
+      Command="$(ProjectDir)configure CC=clang CXX=clang++ --prefix=/usr/local $(PythonConfigureFlags)"
+      IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(PythonBuildDir)"
+      Command="make"
+      IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+
+  <Target Name="LayoutPythonUnix" AfterTargets="BuildPythonUnix"  Condition="'$(BuildOS)' != 'Windows_NT'">
+    <PropertyGroup Condition="'$(BuildOS)' == 'OSX'">
+      <LipoArchitecture Condition="'$(TargetArchitecture)' == 'x64'">x86_64</LipoArchitecture>
+      <LipoArchitecture Condition="'$(TargetArchitecture)' == 'arm64'">arm64</LipoArchitecture>
+    </PropertyGroup>
+    <Exec WorkingDirectory="$(PythonBuildDir)"
+      Command="make install"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="DESTDIR=$(PythonInstallDir);PYTHONHOME=$(PythonInstallDir)/usr/local/" />
+    <ItemGroup>
+      <PythonFiles Include="$(PythonInstallDir)\usr\local\**" />
+    </ItemGroup>
+   <Move SourceFiles="@(PythonFiles)"
+      DestinationFiles="@(PythonFiles->'$(PythonInstallDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <RemoveDir Directories="$(PythonInstallDir)\usr" />
+
+    <!-- manually install pip due to bug in ensurepip preventing install into alt dirs -->
+    <ItemGroup>
+      <WhlFiles Include="$(PythonInstallDir)/lib/python$(PythonMajorVersion)/ensurepip/_bundled/*.whl" />
+    </ItemGroup>
+    <Unzip DestinationFolder="$(PythonInstallDir)/lib/python$(PythonMajorVersion)/site-packages" SourceFiles="@(WhlFiles)" />
+    <Copy SourceFiles="$(RootRepoDir)\eng\launchscript.sh" DestinationFiles="$(PythonInstallDir)\bin\pip$(PythonMajorVersion)" />
+    <Copy SourceFiles="$(RootRepoDir)\eng\launchscript.sh" DestinationFiles="$(PythonInstallDir)\bin\pip3" />
+
+    <Exec WorkingDirectory="$(PythonInstallDir)"
+      Command="bin/python$(PythonMajorVersion) bin/pip$(PythonMajorVersion) install certifi==2023.7.22 chardet==5.2.0 idna==3.4 requests==2.31.0 urllib3==2.0.4"
+      EnvironmentVariables="PYTHONHOME=$(PythonInstallDir)"
+      IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(PythonInstallDir)"
+      Command="lipo -thin $(LipoArchitecture) bin/python3 -output bin/python3.$(TargetArchitecture)"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="'$(BuildOS)' == 'OSX'" />
+    <Exec WorkingDirectory="$(PythonInstallDir)"
+      Command="lipo -thin $(LipoArchitecture) bin/python$(PythonMajorVersion) -output bin/python$(PythonMajorVersion).$(TargetArchitecture)"
+      IgnoreStandardErrorWarningFormat="true"
+      Condition="'$(BuildOS)' == 'OSX'" />
+    <Move Condition="'$(BuildOS)' == 'OSX'" SourceFiles="$(PythonInstallDir)bin\python$(PythonMajorVersion).$(TargetArchitecture)" DestinationFiles="$(PythonInstallDir)bin\python$(PythonMajorVersion)" />
+    <Move Condition="'$(BuildOS)' == 'OSX'" SourceFiles="$(PythonInstallDir)bin\python3.$(TargetArchitecture)" DestinationFiles="$(PythonInstallDir)bin\python3" />
+    <Delete Files="$(PythonInstallDir)lib\libpython$(PythonMajorVersion).a" />
+    <ItemGroup>
+      <PyCaches Include="$(PythonInstallDir)**\*.pyc" />
+      <PyCacheDirs Include="@(PyCaches->'%(RelativeDir)')" />
+      <PyCacheDirsDeduplicated Include="@(PyCacheDirs->Distinct())" />
+    </ItemGroup>
+    <RemoveDir Directories="$(PythonInstallDir)include;$(PythonInstallDir)lib\python$(PythonMajorVersion)\test\;@(PyCacheDirsDeduplicated)" />
+    <ItemGroup>
+      <PythonToStrip Include="$(PythonInstallDir)\bin\python3" />
+      <PythonToStrip Include="$(PythonInstallDir)\bin\python$(PythonMajorVersion)" />
+    </ItemGroup>
+    <Message Importance="High" Text="** Running dsymutil -flat %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="dsymutil -flat %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'OSX'" />
+    <Message Importance="High" Text="** Running strip -no_code_signature_warning -S %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="strip -no_code_signature_warning -S %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'OSX'" />
+    <Message Importance="High" Text="** Running strip -S %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="strip -S %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'Linux'" />
+    <Message Importance="High" Text="** Running codesign -f -s - %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="codesign -f -s - %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'OSX'" />
+  </Target>
+
+  <Target Name="BuildPythonWindows" BeforeTargets="Build" Condition="'$(BuildOS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <PythonHostArch Condition="'$(TargetArchitecture)' == 'x64'">x64</PythonHostArch>
+      <PythonHostArch Condition="'$(TargetArchitecture)' == 'x86'">Win32</PythonHostArch>
+      <PythonHostArch Condition="'$(TargetArchitecture)' == 'arm'">ARM</PythonHostArch>
+      <PythonHostArch Condition="'$(TargetArchitecture)' == 'arm64'">arm64</PythonHostArch>
+    </PropertyGroup>
+    <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
+    <Exec WorkingDirectory="$(ProjectDir)PCbuild"
+      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="Py_OutDir=$(PythonBuildDir)"/>
+  </Target>
+
+  <Target Name="LayoutPythonWindows" AfterTargets="BuildPythonWindows"  Condition="'$(BuildOS)' == 'Windows_NT'">
+    <PropertyGroup>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'x64'">amd64</PythonLayoutArch>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'x86'">win32</PythonLayoutArch>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'arm'">arm32</PythonLayoutArch>
+      <PythonLayoutArch Condition="'$(TargetArchitecture)' == 'arm64'">arm64</PythonLayoutArch>
+      <PythonDebugFlag Condition="'$(Configuration)' == 'Debug'">-d</PythonDebugFlag>
+    </PropertyGroup>
+    <Exec WorkingDirectory="$([System.IO.Path]::GetPathRoot($(MSBuildProjectFullPath)))"
+      Command="python $(ProjectDir)PC\layout -vv -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --catalog $(PythonBuildDir)\python.cdf --include-tools --include-dev --include-stable --include-symbols"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
+    <Exec WorkingDirectory="$(PythonBuildDir)"
+      Command="CALL $(ProjectDir)PCbuild\env.bat &amp;&amp; makecat python.cdf"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
+    <Delete Files="$(PythonBuildDir)\python.cdf" />
+    <Exec WorkingDirectory="$([System.IO.Path]::GetPathRoot($(MSBuildProjectFullPath)))"
+      Command="python $(ProjectDir)PC\layout -vv -s $(ProjectDir) -b $(PythonBuildDir)\$(PythonLayoutArch) --arch $(PythonLayoutArch) --copy $(PythonInstallDir) $(PythonDebugFlag) --doc-build $(ProjectDir)doc --include-tools --include-dev --include-stable --include-cat $(PythonBuildDir)\python.cat --include-symbols"
+      IgnoreStandardErrorWarningFormat="true"
+      EnvironmentVariables="PYTHON_HEXVERSION=$(PythonHexVersion)" />
+  </Target>
+
+  <Target Name="WriteVersionFile" AfterTargets="LayoutPythonWindows;LayoutPythonUnix">
+    <PropertyGroup>
+      <PythonEmsdkVersion>python-$(VersionPrefix)-dotnet</PythonEmsdkVersion>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PythonInstallDir)\.emsdk_version"
+      Overwrite="true"
+      Lines="$(PythonEmsdkVersion)" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="BuildPythonUnix;BuildPythonWindows" />
+  <Target Name="ReallyPack" BeforeTargets="Pack">
+    <MSBuild Projects="eng/nuget/packages.builds" Targets="Build" />
+  </Target>
+</Project>
+

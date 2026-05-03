@@ -1,0 +1,78 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - dotnet/main
+    - dotnet/release/*
+
+pr:
+  branches:
+    include:
+    - dotnet/main
+    - dotnet/release/*
+
+variables:
+- template: /eng/common-variables.yml
+- template: /eng/common/templates/variables/pool-providers.yml
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      enablePublishBuildArtifacts: true
+      enablePublishBuildAssets: true
+      jobs:
+
+      ############ MACOS BUILD ############
+      - job: Build_macOS
+        displayName: macOS
+        timeoutInMinutes: 120
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: osx
+              assetManifestPlatform: x64
+              archflag: --arch x64
+            arm64:
+              assetManifestOS: osx
+              assetManifestPlatform: arm64
+              archflag: --arch arm64
+        pool:
+          vmImage: macos-14 # when bumping this also change the brew tags in cpython.proj
+        steps:
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false /p:ProvisionUniversalDependencies=true
+          displayName: 'Build and package'
+
+      ############ WINDOWS BUILD ############
+      - job: Build_Windows
+        displayName: Windows
+        timeoutInMinutes: 120
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              archflag: -arch x64
+            arm64:
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              archflag: -arch arm64
+        pool:
+          name: $(DncEngPublicBuildPool)
+          demands: ImageOverride -equals windows.vs2022.amd64.open
+        steps:
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false
+          displayName: 'Build and package'

@@ -1,0 +1,31 @@
+{
+  "tool": "Credential Scanner",
+  "suppressions": [
+    {
+      "file": [
+        "Lib/test/allsans.pem",
+        "Lib/test/badcert.pem",
+        "Lib/test/idnsans.pem",
+        "Lib/test/keycert.pem",
+        "Lib/test/keycert2.pem",
+        "Lib/test/keycert3.pem",
+        "Lib/test/keycert4.pem",
+        "Lib/test/keycertecc.pem",
+        "Lib/test/nosan.pem",
+        "Lib/test/pycakey.pem",
+        "Lib/test/ssl_key.pem",
+        "Lib/test/test_nntplib.py",
+        "Lib/test/test_smtplib.py",
+        "Lib/test/test_urllib2_localnet.py"
+      ],
+      "_justification": "Test assets that contain no actual secrets"
+    },
+    {
+      "file": [
+        "Lib/urllib/request.py",
+        "Lib/distutils/command/register.py"
+      ],
+      "_justification": "Dummy credentials in doc comments"
+    }
+  ]
+}
