@@ -115,7 +115,7 @@
          system's built-in support for universal binaries to build for all target architectures
          at once, then split them out again later -->
     <PropertyGroup Condition="'$(BuildOS)' == 'OSX'">
-      <PythonConfigureFlags>--enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir) LIBB2_LIBS="-L$(Libb2Dir)/lib -lb2" MACOSX_DEPLOYMENT_TARGET=11.0</PythonConfigureFlags>
+      <PythonConfigureFlags>--disable-test-modules --enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir) LIBB2_LIBS="-L$(Libb2Dir)/lib -lb2" MACOSX_DEPLOYMENT_TARGET=11.0</PythonConfigureFlags>
     </PropertyGroup>
     <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
       <PythonConfigureFlags>--disable-test-modules</PythonConfigureFlags>
@@ -205,7 +205,7 @@
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(ProjectDir)PCbuild"
-      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter"
+      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter /p:IncludeTests=false"
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="Py_OutDir=$(PythonBuildDir)"/>
   </Target>
