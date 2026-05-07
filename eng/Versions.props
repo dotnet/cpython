@@ -9,7 +9,7 @@
     <MicrosoftDotNetBuildTasksPackagingVersion>11.0.0-beta.26251.2</MicrosoftDotNetBuildTasksPackagingVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <PythonHexVersion>0x030B04F0</PythonHexVersion>
-    <PythonMajorVersion>3.11</PythonMajorVersion>
+    <PythonHexVersion>0x030D03F0</PythonHexVersion>
+    <PythonMajorVersion>3.13</PythonMajorVersion>
   </PropertyGroup>
 </Project>

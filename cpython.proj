@@ -205,7 +205,7 @@
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(ProjectDir)PCbuild"
-      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter /p:IncludeTests=false"
+      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter &quot;/p:IncludeTests=false&quot;"
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="Py_OutDir=$(PythonBuildDir)"/>
   </Target>
