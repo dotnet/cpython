@@ -7,7 +7,7 @@
                 "type": "git",
                 "git": {
                     "repositoryUrl": "https://github.com/python/cpython",
-                    "commitHash": "ac3d5eaec2d0822e81cc78c78692fe1b6a0e234c"
+                    "commitHash": "6280bb547840b609feedb78887c6491af75548e8"
                 }
             },
             "developmentDependency": false
