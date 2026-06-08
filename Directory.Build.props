@@ -69,7 +69,7 @@
     <PythonInstallDir>$(BinDir)cpython\</PythonInstallDir>
     <ProvisionedOpenSSLDir>$(BaseIntermediateOutputPath)openssl-merged\</ProvisionedOpenSSLDir>
     <ProvisionedLibb2Dir>$(BaseIntermediateOutputPath)libb2-merged\</ProvisionedLibb2Dir>
-    <HomebrewDir>$(BaseIntermediateOutputPath)\homebrew-git\</HomebrewDir>
+    <HomebrewDir Condition="'$(HomebrewDir)' == ''">$(BaseIntermediateOutputPath)\homebrew-git\</HomebrewDir>
     <OpenSSLX64Dir>$(BaseIntermediateOutputPath)\openssl-x64\</OpenSSLX64Dir>
     <OpenSSLARM64Dir>$(BaseIntermediateOutputPath)\openssl-arm64\</OpenSSLARM64Dir>
     <Libb2X64Dir>$(BaseIntermediateOutputPath)\libb2-x64\</Libb2X64Dir>

@@ -62,7 +62,7 @@ extends:
               displayName: 'Clean up working directory'
 
             - bash: |
-                ./build.sh --ci --restore --build --pack --arch x64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false /p:ProvisionUniversalDependencies=true
+                ./build.sh --ci --restore --build --pack --arch x64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false /p:ProvisionUniversalDependencies=true /p:HomebrewDir=$(Agent.TempDirectory)/homebrew-git/
               displayName: 'Build and package'
 
             - bash:
@@ -94,7 +94,7 @@ extends:
               displayName: 'Clean up working directory'
 
             - bash: |
-                ./build.sh --ci --restore --build --pack --arch arm64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false /p:ProvisionUniversalDependencies=true
+                ./build.sh --ci --restore --build --pack --arch arm64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false /p:ProvisionUniversalDependencies=true /p:HomebrewDir=$(Agent.TempDirectory)/homebrew-git/
               displayName: 'Build and package'
 
             - bash:
