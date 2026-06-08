@@ -7,6 +7,7 @@
 __all__ = ["run", "runctx", "Profile"]
 
 import _lsprof
+import importlib.machinery
 import io
 import profile as _pyprofile
 
@@ -40,7 +41,9 @@ class Profile(_lsprof.Profiler):
 
     def print_stats(self, sort=-1):
         import pstats
-        pstats.Stats(self).strip_dirs().sort_stats(sort).print_stats()
+        if not isinstance(sort, tuple):
+            sort = (sort,)
+        pstats.Stats(self).strip_dirs().sort_stats(*sort).print_stats()
 
     def dump_stats(self, file):
         import marshal
@@ -170,9 +173,12 @@ def main():
             sys.path.insert(0, os.path.dirname(progname))
             with io.open_code(progname) as fp:
                 code = compile(fp.read(), progname, 'exec')
+            spec = importlib.machinery.ModuleSpec(name='__main__', loader=None,
+                                                  origin=progname)
             globs = {
-                '__file__': progname,
-                '__name__': '__main__',
+                '__spec__': spec,
+                '__file__': spec.origin,
+                '__name__': spec.name,
                 '__package__': None,
                 '__cached__': None,
             }

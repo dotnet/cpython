@@ -2,18 +2,18 @@
 
 Note: BaseHTTPRequestHandler doesn't implement any HTTP request; see
 SimpleHTTPRequestHandler for simple implementations of GET, HEAD and POST,
-and CGIHTTPRequestHandler for CGI scripts.
+and (deprecated) CGIHTTPRequestHandler for CGI scripts.
 
-It does, however, optionally implement HTTP/1.1 persistent connections,
-as of version 0.3.
+It does, however, optionally implement HTTP/1.1 persistent connections.
 
 Notes on CGIHTTPRequestHandler
 ------------------------------
 
-This class implements GET and POST requests to cgi-bin scripts.
+This class is deprecated. It implements GET and POST requests to cgi-bin scripts.
 
-If the os.fork() function is not present (e.g. on Windows),
-subprocess.Popen() is used as a fallback, with slightly altered semantics.
+If the os.fork() function is not present (Windows), subprocess.Popen() is used,
+with slightly altered but never documented semantics.  Use from a threaded
+process is likely to trigger a warning at os.fork() time.
 
 In all cases, the implementation is intentionally naive -- all
 requests are executed synchronously.
@@ -657,6 +657,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     """
 
     server_version = "SimpleHTTP/" + __version__
+    index_pages = ("index.html", "index.htm")
     extensions_map = _encodings_map_default = {
         '.gz': 'application/gzip',
         '.Z': 'application/octet-stream',
@@ -710,7 +711,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Length", "0")
                 self.end_headers()
                 return None
-            for index in "index.html", "index.htm":
+            for index in self.index_pages:
                 index = os.path.join(path, index)
                 if os.path.isfile(index):
                     path = index
@@ -896,7 +897,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         ext = ext.lower()
         if ext in self.extensions_map:
             return self.extensions_map[ext]
-        guess, _ = mimetypes.guess_type(path)
+        guess, _ = mimetypes.guess_file_type(path)
         if guess:
             return guess
         return 'application/octet-stream'
@@ -984,6 +985,12 @@ class CGIHTTPRequestHandler(SimpleHTTPRequestHandler):
     The POST command is *only* implemented for CGI scripts.
 
     """
+
+    def __init__(self, *args, **kwargs):
+        import warnings
+        warnings._deprecated("http.server.CGIHTTPRequestHandler",
+                             remove=(3, 15))
+        super().__init__(*args, **kwargs)
 
     # Determine platform specifics
     have_fork = hasattr(os, 'fork')
@@ -1097,7 +1104,7 @@ class CGIHTTPRequestHandler(SimpleHTTPRequestHandler):
                     "CGI script is not executable (%r)" % scriptname)
                 return
 
-        # Reference: http://hoohoo.ncsa.uiuc.edu/cgi/env.html
+        # Reference: https://www6.uniovi.es/~antonio/ncsa_httpd/cgi/env.html
         # XXX Much of the following could be prepared ahead of time!
         env = copy.deepcopy(os.environ)
         env['SERVER_SOFTWARE'] = self.version_string()

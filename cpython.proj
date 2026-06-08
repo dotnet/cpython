@@ -97,25 +97,28 @@
       <OpenSSLDir Condition="'$(ProvisionUniversalDependencies)' == 'true'">$(ProvisionedOpenSSLDir)</OpenSSLDir>
       <Libb2Dir Condition="'$(ProvisionUniversalDependencies)' == 'true'">$(ProvisionedLibb2Dir)</Libb2Dir>
     </PropertyGroup>
-    <Error Text="OpenSSLDir must be specified, pointing to a universal build of OpenSSL" Condition="!Exists('$(OpenSSLDir)\lib\libssl.a')" />
-    <Error Text="Libb2Dir must be specified, pointing to a universal build of libb2" Condition="!Exists('$(Libb2Dir)\lib\libb2.a')" />
-    <Message Text="Checking for libssl architectures" Importance="High" />
-    <Exec Command="lipo -archs $(OpenSSLDir)/lib/libssl.a" ConsoleToMsBuild="true">
+    <Error Text="OpenSSLDir must be specified, pointing to a universal build of OpenSSL" Condition="'$(BuildOS)' == 'OSX' and !Exists('$(OpenSSLDir)\lib\libssl.a')" />
+    <Error Text="Libb2Dir must be specified, pointing to a universal build of libb2" Condition="'$(BuildOS)' == 'OSX' and !Exists('$(Libb2Dir)\lib\libb2.a')" />
+    <Message Text="Checking for libssl architectures" Importance="High" Condition="'$(BuildOS)' == 'OSX'" />
+    <Exec Command="lipo -archs $(OpenSSLDir)/lib/libssl.a" ConsoleToMsBuild="true" Condition="'$(BuildOS)' == 'OSX'">
       <Output TaskParameter="ConsoleOutput" PropertyName="LibSSLArchs" />
     </Exec>
-    <Error Text="OpenSSL must be a universal binary, detected architectures: $(LibSSLArchs)" Condition="$(LibSSLArchs.Split(' ').Length) &lt; 2" />
-    <Message Text="Checking for libb2 architectures" Importance="High" />
-    <Exec Command="lipo -archs $(Libb2Dir)/lib/libb2.a" ConsoleToMsBuild="true">
+    <Error Text="OpenSSL must be a universal binary, detected architectures: $(LibSSLArchs)" Condition="'$(BuildOS)' == 'OSX' and $(LibSSLArchs.Split(' ').Length) &lt; 2" />
+    <Message Text="Checking for libb2 architectures" Importance="High" Condition="'$(BuildOS)' == 'OSX'" />
+    <Exec Command="lipo -archs $(Libb2Dir)/lib/libb2.a" ConsoleToMsBuild="true" Condition="'$(BuildOS)' == 'OSX'">
       <Output TaskParameter="ConsoleOutput" PropertyName="Libb2Archs" />
     </Exec>
-    <Error Text="libb2 must be a universal binary, detected architectures: $(Libb2Archs)" Condition="$(Libb2Archs.Split(' ').Length) &lt; 2" />
+    <Error Text="libb2 must be a universal binary, detected architectures: $(Libb2Archs)" Condition="'$(BuildOS)' == 'OSX' and $(Libb2Archs.Split(' ').Length) &lt; 2" />
     <!-- Python build system doesn't really support cross-compilation on Mac - but it does
          support building universal binaries. So we cannot use the -build/-host flags to
          produce an arm64 binary on our x64 Mac infrastructure - instead we use the build
          system's built-in support for universal binaries to build for all target architectures
          at once, then split them out again later -->
     <PropertyGroup Condition="'$(BuildOS)' == 'OSX'">
-      <PythonConfigureFlags>--enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir) LIBB2_LIBS="-L$(Libb2Dir)/lib -lb2" MACOSX_DEPLOYMENT_TARGET=11.0</PythonConfigureFlags>
+      <PythonConfigureFlags>--disable-test-modules --enable-universalsdk --with-universal-archs=universal2 --with-openssl=$(OpenSSLDir) LIBB2_LIBS="-L$(Libb2Dir)/lib -lb2" MACOSX_DEPLOYMENT_TARGET=11.0</PythonConfigureFlags>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
+      <PythonConfigureFlags>--disable-test-modules</PythonConfigureFlags>
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(PythonBuildDir)"
@@ -183,6 +186,10 @@
     <Exec IgnoreStandardErrorWarningFormat="true"
       Command="strip -no_code_signature_warning -S %(PythonToStrip.Identity)"
       Condition="'$(BuildOS)' == 'OSX'" />
+    <Message Importance="High" Text="** Running strip -S %(PythonToStrip.Identity)" />
+    <Exec IgnoreStandardErrorWarningFormat="true"
+      Command="strip -S %(PythonToStrip.Identity)"
+      Condition="'$(BuildOS)' == 'Linux'" />
     <Message Importance="High" Text="** Running codesign -f -s - %(PythonToStrip.Identity)" />
     <Exec IgnoreStandardErrorWarningFormat="true"
       Command="codesign -f -s - %(PythonToStrip.Identity)"
@@ -198,7 +205,7 @@
     </PropertyGroup>
     <MakeDir Directories="$(PythonBuildDir)" Condition="!Exists('$(PythonBuildDir)')" />
     <Exec WorkingDirectory="$(ProjectDir)PCbuild"
-      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter"
+      Command="build.bat -vv -c $(Configuration) -p $(PythonHostArch) -t Build --no-tkinter &quot;/p:IncludeTests=false&quot;"
       IgnoreStandardErrorWarningFormat="true"
       EnvironmentVariables="Py_OutDir=$(PythonBuildDir)"/>
   </Target>
