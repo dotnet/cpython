@@ -16,6 +16,9 @@
     <Exec WorkingDirectory="$(BaseIntermediateOutputPath)"
       Command="tar xf brew.tar.gz --strip 1 -C $(HomebrewDir)"
       IgnoreStandardErrorWarningFormat="true" />
+    <!-- Stub .git/HEAD so brew.sh doesn't emit a redirection error to stderr that ends up captured in subsequent ConsoleOutput. -->
+    <MakeDir Directories="$(HomebrewDir).git" />
+    <WriteLinesToFile File="$(HomebrewDir).git/HEAD" Lines="" Overwrite="true" />
     <Exec WorkingDirectory="$(HomebrewDir)"
       Command="bin/brew doctor"
       IgnoreStandardErrorWarningFormat="true"
