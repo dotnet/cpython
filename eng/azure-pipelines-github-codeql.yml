@@ -1,0 +1,72 @@
+# Create this pipeline in `dnceng/internal` against the GitHub repository
+# `dotnet/cpython` so GitHub-attributed CodeQL snapshots stay separate from
+# the existing ADO-mirror pipeline in `eng/azure-pipelines.yml`.
+# After merge, create or update that ADO definition to point to this file and
+# queue one `dotnet/main` run to seed the initial GitHub-attributed snapshots.
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - dotnet/main
+
+pr: none
+
+schedules:
+- cron: 0 0 * * 0
+  displayName: Weekly CodeQL refresh
+  branches:
+    include:
+    - dotnet/main
+  always: true
+
+variables:
+- template: /eng/common-variables.yml@self
+- template: /eng/common/templates-official/variables/pool-providers.yml@self
+
+resources:
+  repositories:
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    sdl:
+      codeql:
+        compiled:
+          enabled: true
+        runSourceLanguagesInSourceAnalysis: true
+        sourceLanguages: javascript, python
+        binaryLanguages: cpp
+      sourceAnalysisPool:
+        name: $(DncEngInternalBuildPool)
+        image: 1es-windows-2022
+        os: windows
+    stages:
+    - stage: build
+      displayName: CodeQL
+      jobs:
+      - template: /eng/common/templates-official/jobs/jobs.yml@self
+        parameters:
+          jobs:
+
+          ############ MACOS x64 BUILD ############
+          - job: Build_macOS_x64
+            displayName: macOS_x64
+            timeoutInMinutes: 120
+            pool:
+              name: Azure Pipelines
+              image: macos-14 # when bumping this also change the brew tags in cpython.proj
+              os: macOS
+            steps:
+            - script: |
+                git clean -ffdx
+                git reset --hard HEAD
+              displayName: Clean up working directory
+
+            - bash: |
+                ./build.sh --ci --restore --build --pack --arch x64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:RestoreUsingNuGetTargets=false /p:ProvisionUniversalDependencies=true /p:HomebrewDir=$(Agent.TempDirectory)/homebrew-git/
+              displayName: Build and package
