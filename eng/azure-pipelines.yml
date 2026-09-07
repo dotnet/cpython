@@ -10,6 +10,13 @@ pr: none
 variables:
 - template: /eng/common-variables.yml@self
 - template: /eng/common/templates-official/variables/pool-providers.yml@self
+- ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['Build.Repository.Name'], 'dotnet-cpython')) }}:
+  - name: Codeql.ADO.Build.Repository.Provider
+    value: GitHub
+  - name: Codeql.ADO.Build.Repository.Uri
+    value: https://github.com/dotnet/cpython
+  - name: Codeql.ADO.Build.SourceBranchName
+    value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 resources:
   repositories:
