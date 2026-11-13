@@ -52,7 +52,7 @@ extends:
             timeoutInMinutes: 120
             pool:
               name: Azure Pipelines
-              image: macos-15 # when bumping this also change the brew tags in cpython.proj
+              image: macos-15 # Intel macOS 15 intentionally uses Sonoma Homebrew bottles.
               os: macOS
             steps:
             - script: |
@@ -83,7 +83,7 @@ extends:
             timeoutInMinutes: 120
             pool:
               name: Azure Pipelines
-              image: macos-15 # when bumping this also change the brew tags in cpython.proj
+              image: macos-15 # Intel macOS 15 intentionally uses Sonoma Homebrew bottles.
               os: macOS
             steps:
             - script: |
