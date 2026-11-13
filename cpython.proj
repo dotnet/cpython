@@ -25,15 +25,15 @@
       IgnoreExitCode="true"
       Condition="!Exists('$(HomebrewDir)\Library\Taps\homebrew\homebrew-core\LICENSE.txt')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew fetch --force --os sequoia --arch all openssl@3.0"
+      Command="bin/brew fetch --force --os sonoma --arch all openssl@3.0"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew fetch --force --os sequoia --arch all libb2"
+      Command="bin/brew fetch --force --os sonoma --arch all libb2"
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=sequoia openssl@3.0"
+      Command="bin/brew --cache --bottle-tag=sonoma openssl@3.0"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" >
@@ -44,7 +44,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLX64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=arm64_sequoia openssl@3.0"
+      Command="bin/brew --cache --bottle-tag=arm64_sonoma openssl@3.0"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" >
@@ -55,7 +55,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(OpenSSLARM64Dir)/LICENSE')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=sequoia libb2"
+      Command="bin/brew --cache --bottle-tag=sonoma libb2"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(Libb2X64Dir)\lib')" >
@@ -66,7 +66,7 @@
       IgnoreStandardErrorWarningFormat="true"
       Condition="!Exists('$(Libb2X64Dir)\lib')" />
     <Exec WorkingDirectory="$(HomebrewDir)"
-      Command="bin/brew --cache --bottle-tag=arm64_sequoia libb2"
+      Command="bin/brew --cache --bottle-tag=arm64_sonoma libb2"
       IgnoreStandardErrorWarningFormat="true"
       ConsoleToMsBuild="true"
       Condition="!Exists('$(Libb2ARM64Dir)\lib')" >
